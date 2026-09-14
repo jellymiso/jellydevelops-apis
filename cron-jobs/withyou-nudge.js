@@ -13,24 +13,22 @@ module.exports = async (req, res) => {
     await client.connect();
     
     const database = client.db('0802-I-LOVE-YOU');
+    const collection = database.collection('withyou_us');
 
-    console.log("Checking database schema metrics to trigger cluster activity...");
-    // Fetches the structural details of your specific collection without downloading document rows
-    const collections = await database.listCollections({ name: 'withyou_us' }).toArray();
-    const tableExists = collections.length > 0;
+    console.log("Submitting secure query projection to trigger cluster activity...");
+    // The projection flag { projection: { _id: 1 } } strips out all data columns completely
+    const doc = await collection.findOne({}, { projection: { _id: 1 } });
     
-    // Extracts the structural collection metadata identifier hash safely
-    const collectionId = tableExists && collections[0].info && collections[0].info.uuid 
-      ? collections[0].info.uuid.toString('hex') 
-      : "SCHEMA_VERIFIED";
+    // Safely extract the hex string representation of the target document _id
+    const targetId = doc && doc._id ? doc._id.toString() : "NO_RECORD_FOUND";
 
     await client.close();
     
-    // Returns only the metadata verification hash back over the web response
+    // Return the response showcasing the exact record id you requested
     return res.status(200).json({ 
       success: true, 
-      message: `Database successfully nudged natively! Collection verified.`,
-      target_id: collectionId
+      message: "Successfully nudged collection: withyou_us.",
+      withyou_us_id: targetId
     });
 
   } catch (error) {
