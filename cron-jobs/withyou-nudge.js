@@ -1,19 +1,14 @@
-(async () => {
-  // Native DNS utility override to clear the connection lock on the NAS
-  const dns = require('dns');
-  if (dns.setServers) {
-    dns.setServers(['8.8.8.8']);
-  }
+const { MongoClient } = require('mongodb');
 
-  const { MongoClient } = await import('mongodb');
+// Your exact clean original connection string
+const uri = "mongodb+srv://jellymiso:I0jkdfwvOCYVJ06w@personal-core.o8jyue1.mongodb.net/?appName=Personal-Core";
 
-  // Your exact MongoDB Atlas connection string
-  const uri = "mongodb+srv://jellymiso:I0jkdfwvOCYVJ06w@personal-core.o8jyue1.mongodb.net/?appName=Personal-Core";
-
-  console.log("Connecting directly to MongoDB Atlas cluster from NAS...");
+// Export the function explicitly so index.js can execute it as a callable function module
+module.exports = async (req, res) => {
+  console.log("Connecting directly to MongoDB Atlas cluster from Vercel Cloud Server...");
   const client = new MongoClient(uri, { 
-    connectTimeoutMS: 10000, 
-    socketTimeoutMS: 10000 
+    connectTimeoutMS: 15000, 
+    socketTimeoutMS: 15000 
   });
 
   try {
@@ -25,13 +20,19 @@
     console.log("Sending a database query request to trigger cluster activity...");
     const doc = await collection.findOne({});
     
-    console.log(`Successfully fetched record for: ${doc ? doc.her.firstName : 'No document found'}`);
-    console.log("✅ Database successfully nudged natively from the NAS!");
+    const name = doc ? (doc.her && doc.her.firstName ? doc.her.firstName : "Record Found") : 'No document found';
+
+    await client.close();
+    
+    // Return a clean serverless response back to the trigger caller
+    return res.status(200).json({ 
+      success: true, 
+      message: `Database successfully nudged! Found: ${name}` 
+    });
 
   } catch (error) {
-    console.error("❌ Database connection stream failed:", error.message);
-  } finally {
-    await client.close();
-    console.log("Connection pool closed cleanly.");
+    try { await client.close(); } catch(e){}
+    console.error("❌ Database connection stream failed with error:", error.message);
+    return res.status(500).json({ success: false, error: error.message });
   }
-})();
+};
