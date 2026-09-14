@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
     // Return the response showcasing the exact record id you requested
     return res.status(200).json({ 
       success: true, 
-      message: "Successfully nudged collection: withyou_us.",
+      message: "Successfully nudged.",
       withyou_us_id: targetId
     });
 
