@@ -1,5 +1,8 @@
 {
+  "name": "jellydevelops-apis",
+  "version": "1.0.0",
+  "type": "commonjs",
   "dependencies": {
-    "mongodb": "^7.6.0"
+    "mongodb": "^6.0.0"
   }
 }
