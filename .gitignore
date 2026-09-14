@@ -1,0 +1,16 @@
+# Block local packages and runtime caches
+node_modules/
+.npm/
+npm-debug.log*
+
+# Block Vercel deployment metadata directories
+.vercel/
+
+# Block system environment variables
+.env
+.env.local
+.env.*.local
+
+# Block OS generation artifacts
+Thumbs.db
+.DS_Store
